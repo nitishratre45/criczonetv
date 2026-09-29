@@ -223,10 +223,7 @@
 "use strict";
 
 // ── API: jtv2.json (GitHub raw) with jsDelivr CORS fallback ───────────
-var API_PRIMARY = "https://raw.githubusercontent.com/sportlive18/playlist/refs/heads/main/jtv2.json";
-var API_FALLBACK = "https://raw.githubusercontent.com/Vk1817/crickplaylist/main/jtv2.json";
-var API          = API_PRIMARY;
-
+var API = "/api/jtv";
 var $overlay = document.getElementById("overlay");
 var $loadMsg = document.getElementById("loadMsg");
 var $status  = document.getElementById("status");
