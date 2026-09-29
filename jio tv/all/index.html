@@ -223,7 +223,9 @@
 "use strict";
 
 // ── API: jtv2.json (GitHub raw) with jsDelivr CORS fallback ───────────
-var API = "/api/jtv";
+var API_PRIMARY = "/api/jtv";
+var API_FALLBACK = "/api/jtv";
+var API          = API_PRIMARY;
 var $overlay = document.getElementById("overlay");
 var $loadMsg = document.getElementById("loadMsg");
 var $status  = document.getElementById("status");
