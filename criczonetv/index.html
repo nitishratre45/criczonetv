@@ -2165,13 +2165,13 @@ async function startPlayer(ch){
       function(type,req){
 
         req.headers["Referer"] =
-          "https://www.jiotv.com/";
+          "https://www.criczonetv.com/";
 
         req.headers["User-Agent"] =
           "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36";
 
         req.headers["Origin"] =
-          "https://www.jiotv.com";
+          "https://www.criczonetv.com";
 
         if(cookie){
 
@@ -2849,7 +2849,7 @@ async function main(){
   }
 
   document.title =
-    "JioTV+ · " +
+    "criczonetv+ · " +
     ch.name;
 
   await startPlayer(ch);
