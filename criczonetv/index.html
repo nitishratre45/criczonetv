@@ -707,6 +707,64 @@
         font-size:14px
       }
     }
+  
+    /* Live watching badge */
+    #watchingBadge{
+      position:absolute;
+      top:14px;
+      right:14px;
+      z-index:30;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 10px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      background:rgba(8,8,8,.78);
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+      line-height:1;
+      letter-spacing:.15px;
+      box-shadow:0 4px 18px rgba(0,0,0,.35);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      pointer-events:none;
+    }
+
+    #watchingBadge .watching-dot{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#22c55e;
+      box-shadow:0 0 8px rgba(34,197,94,.9);
+      flex:0 0 auto;
+    }
+
+    #watchingBadge.loading .watching-dot{
+      background:#f59e0b;
+      box-shadow:0 0 8px rgba(245,158,11,.85);
+    }
+
+    #watchingBadge .watching-text{
+      white-space:nowrap;
+    }
+
+    @media (max-width:480px){
+      #watchingBadge{
+        top:10px;
+        right:10px;
+        padding:6px 9px;
+        font-size:11px;
+      }
+    }
+
+    #pc:fullscreen #watchingBadge,
+    #pc:-webkit-full-screen #watchingBadge{
+      top:max(14px, env(safe-area-inset-top));
+      right:max(14px, env(safe-area-inset-right));
+    }
+
   </style>
 </head>
 
@@ -773,7 +831,15 @@
     x5-video-player-fullscreen="true">
   </video>
 
+  <div id="watchingBadge" class="loading" aria-live="polite">
+    <span class="watching-dot"></span>
+    <span class="watching-text">● Watching …</span>
+  </div>
+
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.min.js"></script>
 
@@ -813,6 +879,117 @@ var $noResults = document.getElementById("no-results");
 var $channelCount = document.getElementById("channelCount");
 var $pc = document.getElementById("pc");
 var $vid = document.getElementById("v");
+var $watchingBadge = document.getElementById("watchingBadge");
+var $watchingText = $watchingBadge && $watchingBadge.querySelector(".watching-text");
+
+var firebaseConfig = {
+  apiKey: "AIzaSyCFusKEh9wF7O6yux5xLQgafvcr_jCv5aA",
+  authDomain: "criczone-4daa2.firebaseapp.com",
+  databaseURL: "https://criczone-4daa2-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "criczone-4daa2",
+  storageBucket: "criczone-4daa2.firebasestorage.app",
+  messagingSenderId: "113293633217",
+  appId: "1:113293633217:web:a96d9b3af3045bcd99d640"
+};
+
+var firebaseReady = false;
+var watchingRef = null;
+var watchingListener = null;
+var watchingViewerId = null;
+
+try{
+  if(window.firebase && firebase.apps && !firebase.apps.length){
+    firebase.initializeApp(firebaseConfig);
+  }
+  firebaseReady = !!(window.firebase && firebase.database);
+}catch(e){
+  console.warn("Firebase watching unavailable:", e);
+}
+
+function getWatchingChannelId(){
+  var id = getChId();
+  return id || "default";
+}
+
+function safeFirebaseKey(value){
+  return btoa(unescape(encodeURIComponent(String(value))))
+    .replace(/=+$/,"")
+    .replace(/\+/g,"-")
+    .replace(/\//g,"_");
+}
+
+function getViewerId(){
+  var key = "criczone_live_viewer_id";
+  var id = sessionStorage.getItem(key);
+  if(!id){
+    id = "viewer_" + Date.now() + "_" +
+      Math.random().toString(36).slice(2,10);
+    sessionStorage.setItem(key,id);
+  }
+  return id;
+}
+
+function setWatchingText(text){
+  if($watchingText) $watchingText.textContent = text;
+}
+
+function startWatchingCounter(){
+  if(!firebaseReady || !$watchingBadge) return;
+
+  try{
+    var channelKey = safeFirebaseKey(getWatchingChannelId());
+    watchingViewerId = getViewerId();
+    watchingRef = firebase.database()
+      .ref("liveViewers/" + channelKey + "/" + watchingViewerId);
+
+    watchingRef.onDisconnect().remove();
+
+    watchingRef.set({
+      active:true,
+      updatedAt:firebase.database.ServerValue.TIMESTAMP
+    });
+
+    watchingListener = firebase.database()
+      .ref("liveViewers/" + channelKey);
+
+    watchingListener.on("value",function(snapshot){
+      var count = snapshot.numChildren ? snapshot.numChildren() : 0;
+      setWatchingText("● Watching " + count);
+      $watchingBadge.classList.remove("loading");
+    });
+
+    window.__criczoneStopWatching = function(){
+      try{
+        if(watchingListener) watchingListener.off();
+        if(watchingRef) watchingRef.remove();
+      }catch(_){}
+      watchingListener = null;
+      watchingRef = null;
+    };
+
+    window.addEventListener("beforeunload",function(){
+      try{
+        if(watchingRef) watchingRef.remove();
+      }catch(_){}
+    },{once:true});
+
+    window.setInterval(function(){
+      if(document.visibilityState === "visible" && watchingRef){
+        watchingRef.update({
+          active:true,
+          updatedAt:firebase.database.ServerValue.TIMESTAMP
+        }).catch(function(){});
+      }
+    },30000);
+
+  }catch(e){
+    console.warn("Watching counter error:",e);
+    setWatchingText("● Live");
+    $watchingBadge.classList.remove("loading");
+  }
+}
+
+
 
 var _stTmr = null;
 
@@ -2788,6 +2965,8 @@ $searchInput.addEventListener(
 /* =========================================================
    MAIN
    ========================================================= */
+
+startWatchingCounter();
 
 async function main(){
 
