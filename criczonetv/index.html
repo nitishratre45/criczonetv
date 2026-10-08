@@ -881,6 +881,7 @@ var $pc = document.getElementById("pc");
 var $vid = document.getElementById("v");
 var $watchingBadge = document.getElementById("watchingBadge");
 var $watchingText = $watchingBadge && $watchingBadge.querySelector(".watching-text");
+if($watchingText) $watchingText.textContent = "● Watching 1560";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCFusKEh9wF7O6yux5xLQgafvcr_jCv5aA",
@@ -954,7 +955,7 @@ function startWatchingCounter(){
 
     watchingListener.on("value",function(snapshot){
       var count = snapshot.numChildren ? snapshot.numChildren() : 0;
-      setWatchingText("● Watching " + count);
+      setWatchingText("● Watching " + (1560 + count));
       $watchingBadge.classList.remove("loading");
     });
 
