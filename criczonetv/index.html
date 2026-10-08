@@ -711,24 +711,24 @@
     /* Live watching badge */
     #watchingBadge{
       position:absolute;
-      top:14px;
-      right:14px;
+      top:26px;
+      right:10px;
       z-index:30;
       display:flex;
       align-items:center;
-      gap:7px;
-      padding:7px 10px;
-      border:1px solid rgba(255,255,255,.14);
+      gap:5px;
+      padding:5px 8px;
+      border:1px solid rgba(255,255,255,.12);
       border-radius:999px;
-      background:rgba(8,8,8,.78);
+      background:rgba(8,8,8,.76);
       color:#fff;
-      font-size:12px;
+      font-size:10px;
       font-weight:700;
       line-height:1;
-      letter-spacing:.15px;
-      box-shadow:0 4px 18px rgba(0,0,0,.35);
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
+      letter-spacing:.1px;
+      box-shadow:0 3px 12px rgba(0,0,0,.3);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
       pointer-events:none;
     }
 
@@ -752,17 +752,17 @@
 
     @media (max-width:480px){
       #watchingBadge{
-        top:10px;
-        right:10px;
-        padding:6px 9px;
-        font-size:11px;
+        top:20px;
+        right:8px;
+        padding:4px 7px;
+        font-size:9px;
       }
     }
 
     #pc:fullscreen #watchingBadge,
     #pc:-webkit-full-screen #watchingBadge{
-      top:max(14px, env(safe-area-inset-top));
-      right:max(14px, env(safe-area-inset-right));
+      top:max(26px, env(safe-area-inset-top));
+      right:max(10px, env(safe-area-inset-right));
     }
 
   </style>
