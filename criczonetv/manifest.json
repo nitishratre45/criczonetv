@@ -1,14 +1,14 @@
 {
   "id": "./",
-  "name": "CRICZONE TV+",
+  "name": "CricZone TV+",
   "short_name": "CricZone TV",
-  "description": "CRICZONE TV+ channel directory",
+  "description": "CricZone TV channel directory",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#080808",
+  "theme_color": "#080808",
   "icons": [
     {
       "src": "./icon-192.svg",
