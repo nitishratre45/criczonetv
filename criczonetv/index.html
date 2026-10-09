@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="referrer" content="no-referrer">
+  <title>CRICZONE TV+</title>
+  <meta name="description" content="CRICZONE TV+ — browse live channels in one place.">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-192.svg">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/controls.css">
@@ -3058,6 +3064,17 @@ document.addEventListener(
 );
 
 })();
+</script>
+
+
+<script>
+  // Register the service worker within the /criczonetv/ subdirectory.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
+        .catch(function (error) { console.warn("PWA service worker registration failed:", error); });
+    });
+  }
 </script>
 
 </body>
