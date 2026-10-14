@@ -811,7 +811,7 @@
     #search-icon{left:16px;color:#9aa6ba}
     #search-clear{right:10px;min-width:34px;min-height:34px;color:#cbd5e1}
     #category-filter{gap:9px;padding:10px 0 15px;border-bottom-color:var(--cz-line)}
-    .filter-pill{padding:8px 15px;border-radius:999px;font-size:11px;background:#111725;color:#a9b4c7;border-color:var(--cz-line)}
+    .filter-pill{appearance:none;-webkit-appearance:none;padding:8px 15px;border-radius:999px;font-size:11px;font-family:inherit;background:#111725;color:#a9b4c7;border-color:var(--cz-line)}
     .filter-pill.active{background:linear-gradient(135deg,#dc2626,#f97316);box-shadow:0 5px 18px rgba(239,68,68,.22)}
     #grid-wrapper{padding-top:18px;scrollbar-gutter:stable}
     #ch-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:14px}
@@ -834,6 +834,12 @@
     .ch-card .ch-name{font-size:13px;line-height:1.4;color:#f1f5f9}
     .ch-card .ch-placeholder{height:60px;max-width:124px;border-color:var(--cz-line);background:linear-gradient(135deg,#1b2435,#111725);color:#64748b}
     #no-results{padding:clamp(45px,9vh,90px) 20px;color:var(--cz-muted)}
+    #overlay p{color:#a8b3c7;font-size:14px;line-height:1.55}
+    #overlay svg{filter:drop-shadow(0 0 14px rgba(239,68,68,.18))}
+    .ch-card .ch-logo{object-fit:contain}
+    .filter-pill:focus-visible{outline:2px solid #fb7185;outline-offset:3px}
+    #telegramPopup{animation:telegramBackdropIn .22s ease-out}
+    @keyframes telegramBackdropIn{from{opacity:0}to{opacity:1}}
     #no-results .icon{filter:grayscale(.15);opacity:.8}
     #pc{background:#000;isolation:isolate}
     video{outline:none}
@@ -1423,28 +1429,29 @@ async function loadData(){
 
     try{
 
-      var r = await fetch(
-        urls[i],
-        {
+      var controller =
+        typeof AbortController !== "undefined"
+          ? new AbortController()
+          : null;
+      var requestTimer = setTimeout(function(){
+        if(controller) controller.abort();
+      }, 12000);
+      var r;
+      var text;
+      try{
+        var options = {
           cache:"no-store",
-          headers:{
-            Accept:
-              "application/json, text/plain, */*"
-          }
-        }
-      );
-
-      if(!r.ok){
-
-        throw new Error(
-          "HTTP " +
-          r.status +
-          " from " +
-          urls[i]
-        );
+          headers:{Accept:"application/json, text/plain, */*"}
+        };
+        if(controller) options.signal = controller.signal;
+        r = await fetch(urls[i], options);
+        text = await r.text();
+      }finally{
+        clearTimeout(requestTimer);
       }
-
-      var text = await r.text();
+      if(!r.ok){
+        throw new Error("HTTP " + r.status + " from " + urls[i]);
+      }
 
       if(
         !text ||
@@ -1640,7 +1647,8 @@ function renderFilters(channels){
   categories.forEach(function(cat){
 
     var pill =
-      document.createElement("span");
+      document.createElement("button");
+    pill.type = "button";
 
     pill.className =
       "filter-pill" +
@@ -1769,61 +1777,49 @@ function renderChannels(filtered){
       "?id=" +
       encodeURIComponent(ch.id);
 
-    var logoHtml = "";
+    if(ch.category && ch.category !== "General"){
+      var badge = document.createElement("span");
+      badge.className = "category-badge";
+      badge.textContent = ch.category;
+      a.appendChild(badge);
+    }
 
-    if(
-      ch.logo &&
-      ch.logo.trim()
-    ){
+    function makePlaceholder(){
+      var placeholder = document.createElement("div");
+      placeholder.className = "ch-placeholder";
+      var initials = document.createElement("span");
+      initials.className = "initials";
+      initials.textContent = ch.name
+        .split(/\\s+/)
+        .filter(Boolean)
+        .slice(0,2)
+        .map(function(word){ return word.charAt(0); })
+        .join("")
+        .toUpperCase();
+      placeholder.appendChild(initials);
+      return placeholder;
+    }
 
-      logoHtml =
-        '<img class="ch-logo" ' +
-        'src="' + ch.logo + '" ' +
-        'alt="' + ch.name + '" ' +
-        'loading="lazy" ' +
-        'onerror="this.style.display=\'none\'">';
-
+    if(ch.logo && ch.logo.trim()){
+      var logo = document.createElement("img");
+      logo.className = "ch-logo";
+      logo.alt = ch.name;
+      logo.loading = "lazy";
+      logo.decoding = "async";
+      logo.src = ch.logo;
+      logo.addEventListener("error", function(){
+        if(logo.parentNode) logo.parentNode.replaceChild(makePlaceholder(), logo);
+      }, {once:true});
+      a.appendChild(logo);
     }else{
-
-      var words =
-        ch.name
-          .split(" ")
-          .slice(0,2);
-
-      var initials =
-        words.map(function(w){
-
-          return w[0];
-
-        }).join("");
-
-      logoHtml =
-        '<div class="ch-placeholder">' +
-          '<span class="initials">' +
-            initials +
-          '</span>' +
-        '</div>';
+      a.appendChild(makePlaceholder());
     }
 
-    var badgeHtml = "";
+    var name = document.createElement("span");
+    name.className = "ch-name";
+    name.textContent = ch.name;
 
-    if(
-      ch.category &&
-      ch.category !== "General"
-    ){
-
-      badgeHtml =
-        '<span class="category-badge">' +
-          ch.category +
-        '</span>';
-    }
-
-    a.innerHTML =
-      badgeHtml +
-      logoHtml +
-      '<span class="ch-name">' +
-        ch.name +
-      '</span>';
+    a.appendChild(name);
 
     f.appendChild(a);
   });
@@ -2822,14 +2818,11 @@ async function startPlayer(ch){
      * successful channel load.
      */
 
-    setTimeout(
-      function(){
-
-        showTelegramPopup();
-
-      },
-      300
-    );
+    /*
+     * Telegram invite is scheduled after actual playback starts,
+     * not while the channel is merely loading.
+     * The one-minute timer is started by the first "playing" event.
+     */
 
   }catch(_){
 
@@ -2854,6 +2847,8 @@ async function startPlayer(ch){
      ========================================================= */
 
   var stallTmr = null;
+  var telegramTimer = null;
+  var telegramShown = false;
 
   function onStall(){
 
@@ -2896,6 +2891,16 @@ async function startPlayer(ch){
   function onPlaying(){
 
     started = true;
+
+    if(!telegramShown && !telegramTimer){
+      telegramTimer = setTimeout(function(){
+        telegramTimer = null;
+        if(!telegramShown){
+          telegramShown = true;
+          showTelegramPopup();
+        }
+      }, 60000);
+    }
 
     if(stallTmr){
 
@@ -3104,6 +3109,21 @@ $searchInput.addEventListener(
 
 startWatchingCounter();
 
+window.addEventListener("offline", function(){
+  toast("No internet connection. Check your network.", "err", 0);
+});
+
+window.addEventListener("online", function(){
+  toast("Connection restored. Refreshing channel data…", "ok", 3500);
+  setTimeout(function(){
+    if(getChId()){
+      location.reload();
+    }else{
+      main();
+    }
+  }, 700);
+});
+
 async function main(){
 
   var id =
@@ -3121,12 +3141,12 @@ async function main(){
       await loadData();
 
   }catch(e){
-
+    console.error("CricZone TV channel loading failed:", e);
     errMsg(
-      "Error loading: " +
-      e.message
+      navigator.onLine === false
+        ? "No internet connection. Check your network and retry."
+        : "Unable to load channels. Please check your connection and try again."
     );
-
     return;
   }
 
