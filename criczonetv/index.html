@@ -834,7 +834,20 @@
     .ch-card .ch-name{font-size:13px;line-height:1.4;color:#f1f5f9}
     .ch-card .ch-placeholder{height:60px;max-width:124px;border-color:var(--cz-line);background:linear-gradient(135deg,#1b2435,#111725);color:#64748b}
     #no-results{padding:clamp(45px,9vh,90px) 20px;color:var(--cz-muted)}
-    #overlay p{color:#a8b3c7;font-size:14px;line-height:1.55}
+    #overlay p{color:#a8b3c7;font-size:14px;line-height:1.55;max-width:min(88vw,420px)}
+    .retry-button{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:140px;min-height:44px;margin-top:4px;padding:10px 22px;
+      border:1px solid rgba(248,113,113,.32);border-radius:13px;
+      background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;
+      font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.2px;cursor:pointer;
+      box-shadow:0 8px 24px rgba(239,68,68,.18);
+      transition:transform .2s ease,filter .2s ease;
+      -webkit-tap-highlight-color:transparent
+    }
+    .retry-button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .retry-button:active{transform:scale(.98)}
+    .retry-button:focus-visible{outline:2px solid #fff;outline-offset:3px}
     #overlay svg{filter:drop-shadow(0 0 14px rgba(239,68,68,.18))}
     .ch-card .ch-logo{object-fit:contain}
     .filter-pill:focus-visible{outline:2px solid #fb7185;outline-offset:3px}
@@ -1856,15 +1869,25 @@ function renderList(data){
 function errMsg(msg){
 
   setMsg(msg);
+  $overlay.style.display = "flex";
 
-  $overlay.style.display =
-    "flex";
+  var spinner = $overlay.querySelector("svg");
+  if(spinner) spinner.style.display = "none";
 
-  toast(
-    msg,
-    "err",
-    0
-  );
+  var retry = document.getElementById("retryButton");
+  if(!retry){
+    retry = document.createElement("button");
+    retry.id = "retryButton";
+    retry.type = "button";
+    retry.className = "retry-button";
+    retry.textContent = "Try Again";
+    retry.addEventListener("click", function(){
+      location.reload();
+    });
+    $overlay.appendChild(retry);
+  }
+  retry.style.display = "inline-flex";
+  toast(msg, "err", 0);
 }
 
 function shakaErrStr(e){
