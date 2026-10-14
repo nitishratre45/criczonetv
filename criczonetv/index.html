@@ -771,6 +771,118 @@
       right:max(10px, env(safe-area-inset-right));
     }
 
+  
+    /* CRICZONE TV+ — responsive visual polish (CSS-only; playback logic unchanged) */
+    :root{
+      color-scheme:dark;
+      --cz-bg:#080b12;
+      --cz-panel:#101521;
+      --cz-panel-2:#151c2b;
+      --cz-line:rgba(255,255,255,.09);
+      --cz-muted:#8d98ab;
+      --cz-accent:#ef4444;
+      --cz-accent-2:#f97316;
+    }
+    html,body{background:var(--cz-bg);color:#f8fafc}
+    body{background:radial-gradient(ellipse at 50% -18%,rgba(239,68,68,.11),transparent 52%),var(--cz-bg)}
+    #channel-list{
+      background:radial-gradient(ellipse at 90% 0%,rgba(249,115,22,.07),transparent 34%),var(--cz-bg);
+      padding-left:clamp(14px,3vw,42px);
+      padding-right:clamp(14px,3vw,42px);
+      scroll-behavior:smooth;
+    }
+    #channel-list .header{
+      position:sticky;top:0;z-index:4;
+      padding:12px 0 16px;margin-bottom:14px;
+      background:linear-gradient(180deg,rgba(8,11,18,.98),rgba(8,11,18,.88));
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--cz-line);
+    }
+    #channel-list .header h1{font-size:clamp(18px,2.2vw,25px);letter-spacing:.3px}
+    #channel-list .header .subtitle{color:#fecaca;background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.22)}
+    #channel-list .header .count{padding:6px 10px;border:1px solid var(--cz-line);border-radius:999px;background:rgba(255,255,255,.035);color:#cbd5e1}
+    #search-container{margin:0 0 12px}
+    #search-input{
+      min-height:46px;padding:12px 44px;border-radius:14px;
+      border-color:var(--cz-line);background:rgba(16,21,33,.88);
+      font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.12)
+    }
+    #search-input:focus{border-color:rgba(248,113,113,.7);box-shadow:0 0 0 4px rgba(239,68,68,.12)}
+    #search-icon{left:16px;color:#9aa6ba}
+    #search-clear{right:10px;min-width:34px;min-height:34px;color:#cbd5e1}
+    #category-filter{gap:9px;padding:10px 0 15px;border-bottom-color:var(--cz-line)}
+    .filter-pill{padding:8px 15px;border-radius:999px;font-size:11px;background:#111725;color:#a9b4c7;border-color:var(--cz-line)}
+    .filter-pill.active{background:linear-gradient(135deg,#dc2626,#f97316);box-shadow:0 5px 18px rgba(239,68,68,.22)}
+    #grid-wrapper{padding-top:18px;scrollbar-gutter:stable}
+    #ch-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:14px}
+    .ch-card{
+      min-height:145px;padding:20px 14px 16px;gap:13px;
+      border:1px solid var(--cz-line);border-radius:18px;
+      background:linear-gradient(145deg,rgba(21,28,43,.96),rgba(12,16,26,.98));
+      box-shadow:0 8px 22px rgba(0,0,0,.12);
+      transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease;
+    }
+    .ch-card::after{
+      content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+      background:linear-gradient(135deg,rgba(239,68,68,.08),transparent 60%);
+      transition:opacity .22s ease;
+    }
+    .ch-card:hover{transform:translateY(-4px);border-color:rgba(248,113,113,.55);box-shadow:0 14px 32px rgba(0,0,0,.26),0 0 0 1px rgba(239,68,68,.06)}
+    .ch-card:hover::after{opacity:1}
+    .ch-card .category-badge{top:10px;right:10px;padding:4px 8px;font-size:8px;color:#cbd5e1;background:rgba(255,255,255,.055);border-color:var(--cz-line)}
+    .ch-card .ch-logo{max-width:124px;max-height:60px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.16))}
+    .ch-card .ch-name{font-size:13px;line-height:1.4;color:#f1f5f9}
+    .ch-card .ch-placeholder{height:60px;max-width:124px;border-color:var(--cz-line);background:linear-gradient(135deg,#1b2435,#111725);color:#64748b}
+    #no-results{padding:clamp(45px,9vh,90px) 20px;color:var(--cz-muted)}
+    #no-results .icon{filter:grayscale(.15);opacity:.8}
+    #pc{background:#000;isolation:isolate}
+    video{outline:none}
+    #status{
+      top:max(16px,env(safe-area-inset-top));left:50%;right:auto;transform:translateX(-50%);
+      max-width:min(90vw,420px);padding:9px 15px;border-radius:12px;
+      background:rgba(12,16,26,.88);border-color:rgba(255,255,255,.12);
+      text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.3);
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
+    }
+    #watchingBadge{border-color:rgba(255,255,255,.16);padding:7px 10px;font-size:11px}
+    .telegram-backdrop{background:rgba(2,5,12,.78)}
+    .telegram-card{
+      border-color:rgba(255,255,255,.12);
+      background:radial-gradient(ellipse at 50% 0%,rgba(34,158,217,.12),transparent 55%),linear-gradient(145deg,#171e2b,#0b0f17);
+      box-shadow:0 28px 90px rgba(0,0,0,.62)
+    }
+    .telegram-card p{color:#a1acc0;font-size:13px}
+    .telegram-continue{border-color:var(--cz-line);color:#cbd5e1}
+    button,input{font:inherit}
+    button{touch-action:manipulation}
+    :focus-visible{outline:2px solid #fb7185;outline-offset:3px}
+    @media (max-width:600px){
+      #channel-list{padding-left:12px;padding-right:12px}
+      #channel-list .header{gap:8px;padding-top:8px;padding-bottom:13px;margin-bottom:12px}
+      #channel-list .header h1{font-size:17px}
+      #channel-list .header .subtitle{font-size:9px;padding:4px 9px}
+      #channel-list .header .count{font-size:10px;padding:5px 8px}
+      #ch-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .ch-card{min-height:122px;padding:17px 9px 12px;border-radius:15px;gap:10px}
+      .ch-card .ch-logo,.ch-card .ch-placeholder{max-width:100px;max-height:46px;height:46px}
+      .ch-card .ch-name{font-size:11px;overflow-wrap:anywhere}
+      .ch-card .category-badge{font-size:7px;top:7px;right:7px;padding:3px 6px}
+      #grid-wrapper{padding-top:13px}
+      #status{font-size:11px}
+    }
+    @media (min-width:900px){
+      #channel-list{max-width:none}
+      #ch-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
+      .ch-card{min-height:158px}
+    }
+    @media (hover:none){
+      .ch-card:hover{transform:none;box-shadow:0 8px 22px rgba(0,0,0,.12);border-color:var(--cz-line)}
+      .ch-card:active{transform:scale(.985);border-color:rgba(248,113,113,.5)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    }
+
   </style>
 </head>
 
