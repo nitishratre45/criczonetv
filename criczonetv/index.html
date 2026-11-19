@@ -1572,6 +1572,36 @@ async function loadData(){
           };
         });
 
+      /* Optional metadata catalogue from nitish4 Worker.
+         Only enrich existing authorized playback entries; catalogue metadata
+         never supplies stream URLs, cookies, or DRM fields. */
+      try{
+        var catalogueResponse = await fetch("https://nitish4.nitish-4.workers.dev/channels", {
+          cache:"no-store",
+          headers:{Accept:"application/json"}
+        });
+        if(catalogueResponse.ok){
+          var catalogueData = await catalogueResponse.json();
+          var catalogue = Array.isArray(catalogueData.channels) ? catalogueData.channels : [];
+          var metadataById = Object.create(null);
+          catalogue.forEach(function(meta){
+            var metaId = String(meta.id || "").trim();
+            if(metaId) metadataById[metaId] = meta;
+          });
+          channels = channels.map(function(ch){
+            var meta = metadataById[String(ch.id || "").trim()];
+            if(!meta) return ch;
+            return Object.assign({}, ch, {
+              name:meta.name || ch.name,
+              logo:meta.logo || ch.logo,
+              category:meta.category || ch.category
+            });
+          });
+        }
+      }catch(catalogueError){
+        console.warn("Optional channel catalogue unavailable:", catalogueError);
+      }
+
       channels =
         channels.filter(function(ch){
 
